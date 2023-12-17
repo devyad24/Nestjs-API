@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService, ConfigModule } from '@nestjs/config';
+import { TodoModule } from './todo/todo.module';
 
 @Module({
   imports: [
@@ -15,18 +15,19 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
       })],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get('HOST'),
-        port: +configService.get('PORT'),
-        username: configService.get('USERNAME'),
-        password: configService.get('PASSWORD'),
-        database: configService.get('DATABASE'),
+        host: configService.get('DB_HOST'),
+        port: +configService.get<number>('DB_PORT'),
+        username: configService.get('DB_USERNAME'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_DATABASE'),
+        synchronize: configService.get<boolean>('DB_SYNC'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true,
       }),
       inject: [ConfigService],
-    })
+    }),
+    TodoModule
   ],
-  controllers: [AppController, UsersController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
